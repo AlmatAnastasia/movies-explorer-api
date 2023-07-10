@@ -1,12 +1,13 @@
-const { SALT_ROUNDS = 10 } = process.env;
 const bcrypt = require('bcryptjs');
 const userModel = require('../models/users');
-const STATUS_CODES = require('../utils/costants');
+const { SALT_ROUNDS } = require('../utils/config');
+const { STATUS_CODES } = require('../utils/costants');
+const { errorMessage } = require('../utils/costants');
+const { signToken } = require('../utils/jwtAuth');
 const BadRequestError = require('../errors/Bad_Request_Error');
 const UnauthorizedError = require('../errors/Unauthorized_Error');
 const ConflictingRequestError = require('../errors/Conflicting_Request_Error');
 const NotFoundError = require('../errors/Not_Found_Error');
-const { signToken } = require('../utils/jwtAuth');
 
 // вернуть информацию о текущем пользователе (email и имя)
 const getUserMe = (req, res, next) => {
@@ -15,7 +16,7 @@ const getUserMe = (req, res, next) => {
     .findById(owner)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь не найден');
+        throw new NotFoundError(errorMessage.messageNotFoundErrorUser);
       }
       return res.send(user);
     })
@@ -35,8 +36,10 @@ const patchUserMe = (req, res, next) => {
     )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные'));
+      if (err.code === STATUS_CODES.MONGO_DUPLICATE_KEY_ERROR) {
+        next(new ConflictingRequestError(errorMessage.messageConflictingRequestError));
+      } else if (err.name === 'ValidationError') {
+        next(new BadRequestError(errorMessage.messageBadRequestError));
       } else {
         next(err);
       }
@@ -64,9 +67,9 @@ const postUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.code === STATUS_CODES.MONGO_DUPLICATE_KEY_ERROR) {
-            next(new ConflictingRequestError('Такой пользователь уже существует'));
+            next(new ConflictingRequestError(errorMessage.messageConflictingRequestError));
           } else if (err.name === 'ValidationError') {
-            next(new BadRequestError('Переданы некорректные данные'));
+            next(new BadRequestError(errorMessage.messageBadRequestError));
           } else {
             next(err);
           }
@@ -82,7 +85,7 @@ const loginUser = (req, res, next) => {
     .findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Неправильные почта или пароль');
+        throw new UnauthorizedError(errorMessage.messageUnauthorizedErrorLogin);
       }
       return user;
     })
@@ -92,14 +95,14 @@ const loginUser = (req, res, next) => {
     })
     .then(([user, match]) => {
       if (!match) {
-        throw new UnauthorizedError('Неправильные почта или пароль');
+        throw new UnauthorizedError(errorMessage.messageUnauthorizedErrorLogin);
       }
       const token = signToken({ _id: user._id });
       res.send({ token });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные'));
+        next(new BadRequestError(errorMessage.messageBadRequestError));
       } else {
         next(err);
       }

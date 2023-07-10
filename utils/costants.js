@@ -9,4 +9,18 @@ const STATUS_CODES = {
   MONGO_DUPLICATE_KEY_ERROR: 11000,
 };
 
-module.exports = STATUS_CODES;
+const errorMessage = {
+  messageNotFoundErrorMovie: 'Фильм не найден',
+  messageForbiddenError: 'Доступ к запрошенному ресурсу запрещен',
+  messageBadRequestError: 'Переданы некорректные данные',
+  messageNotFoundErrorUser: 'Пользователь не найден',
+  messageConflictingRequestError: 'Такой пользователь уже существует',
+  messageUnauthorizedErrorLogin: 'Неправильные почта или пароль',
+  messageUnauthorizedErrorAuth: 'Требуется авторизация',
+  messageNotFoundErrorPath: 'Путь не найден',
+  messageInternalServerError: 'Внутренняя ошибка сервера',
+};
+
+const regex = /^(http|https):\/\/(www.)?[0-9a-z -._~:[\]/?#[\]@!$&'()*+,;=]{1,}(\/[a-z/]*)?(#)?/i;
+
+module.exports = { STATUS_CODES, regex, errorMessage };

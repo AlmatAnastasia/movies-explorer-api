@@ -1,15 +1,15 @@
-const { PORT = 3000, DB_ADDRESS = 'mongodb://127.0.0.1/bitfilmsdb' } = process.env;
 const express = require('express');
-require('dotenv').config();
+
 const mongoose = require('mongoose');
 // защита приложения от некоторых веб-уязвимостей
 const helmet = require('helmet');
 const { errors } = require('celebrate');
+const { PORT, DB_ADDRESS } = require('./utils/config');
 const limiter = require('./utils/limiter');
 const { cors } = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const router = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
+const router = require('./routes');
 
 mongoose.connect(DB_ADDRESS);
 

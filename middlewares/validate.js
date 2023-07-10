@@ -1,7 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
-
-// регулярное выражение для проверки ссылки (данных поля avatar)
-const regex = /^(http|https):\/\/(www.)?[0-9a-z -._~:[\]/?#[\]@!$&'()*+,;=]{1,}(\/[a-z/]*)?(#)?/i;
+// регулярное выражение для проверки ссылки
+const { regex } = require('../utils/costants');
 
 // регистрация пользователя
 const validatorSignUp = celebrate({
@@ -17,13 +16,6 @@ const validatorSignIn = celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-  }),
-});
-
-// вернуть информацию о текущем пользователе (email и имя)
-const validatorUserByID = celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().length(24).hex(),
   }),
 });
 
@@ -62,7 +54,6 @@ const validatorPostMovie = celebrate({
 module.exports = {
   validatorSignIn,
   validatorSignUp,
-  validatorUserByID,
   validatorPatchUserMe,
   validatorMovieByID,
   validatorPostMovie,

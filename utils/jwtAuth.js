@@ -1,5 +1,5 @@
-const { NODE_ENV = 'production', JWT_SECRET = 'JWT_SECRET' } = process.env;
 const jwt = require('jsonwebtoken');
+const { NODE_ENV, JWT_SECRET } = require('./config');
 
 const SECRET_KEY = NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret';
 
